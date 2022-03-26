@@ -1,4 +1,4 @@
-from sys import argv
+from sys import argv, stderr
 import argparse
 from pathlib import Path
 import os
@@ -6,18 +6,21 @@ import yaml
 from Stiledprint import stlprint
 from pprint import pprint
 
+
 PATH = "/home/" + os.getlogin() + "/.config/alacritty/"
 ALACRITTY_FILE_PATH = PATH + "alacritty.yml"
 THEME_FILE_PATH = PATH + "pytheme/themes/themes/"
 FONT_FILE_PATH = PATH + "pytheme/themes/fonts"
 
+
+
 def changecursor():
-    try: 
+    try:
         argtheme = cli()
-        
+
         with open(ALACRITTY_FILE_PATH , "r") as alacritty_file:
             alacritty = yaml.load(alacritty_file, Loader=yaml.FullLoader)
-        
+
         alacritty["cursor"]["style"]["shape"] = argtheme.cursor[0]
         if argtheme.cursor[1] != None:
             a = None
@@ -28,14 +31,16 @@ def changecursor():
             alacritty["cursor"]["style"]["blinking"] = a
         if argtheme.cursor[2] != None:
             alacritty["cursor"]["style"]["blink-interval"] = int(argtheme.cursor[2]) 
+        if argtheme.verbosity == True:
+            print("Cursor succesful changed to -> {}".format(argtheme.cursor[0]))
         with open(ALACRITTY_FILE_PATH, "w") as f:
             yaml.dump(alacritty, f)
-    
 
+        
     except yaml.YAMLError or FileNotFoundError as e:
         excepterYaml(e)
 def changepadding():
-    try: 
+    try:
         argtheme = cli()
         
         with open(ALACRITTY_FILE_PATH , "r") as alacritty_file:
@@ -50,7 +55,9 @@ def changepadding():
         with open(ALACRITTY_FILE_PATH, "w") as f:
             yaml.dump(alacritty, f)
     
-
+        if argtheme.verbosity == True:
+            print("Padding succesful changed to -> {}/{}".format(argtheme.padding[0], argtheme.padding[1]))
+        
     except yaml.YAMLError or FileNotFoundError as e:
         excepterYaml(e)
 
@@ -60,13 +67,16 @@ def changesize():
         
         with open(ALACRITTY_FILE_PATH , "r") as alacritty_file:
             alacritty = yaml.load(alacritty_file, Loader=yaml.FullLoader)
-            
+  
         alacritty["font"]["size"] = float(argtheme.size)
 
         with open(ALACRITTY_FILE_PATH, "w") as f:
             yaml.dump(alacritty, f)
-    
 
+        if argtheme.verbosity == True:
+            print("Size succesful changed to -> {}".format(argtheme.size))
+
+        
     except yaml.YAMLError or FileNotFoundError as e:
         excepterYaml(e)
 
@@ -83,7 +93,9 @@ def changeopacity():
         with open(ALACRITTY_FILE_PATH, "w") as f:
             yaml.dump(alacritty, f)
     
-
+        if argtheme.verbosity == True:
+            print("Opacity succesful changed to -> {}".format(argtheme.opacity))
+        
     except yaml.YAMLError or FileNotFoundError as e:
         excepterYaml(e)
 
@@ -100,9 +112,10 @@ def changefont():
   
         with open(ALACRITTY_FILE_PATH, "w") as f:
             yaml.dump(alacritty, f)
-        
+        if argtheme.verbosity == True:
+            print("Font succesful changed to -> {}".format(argtheme.font))
         return True
-
+        
     except yaml.YAMLError or FileNotFoundError as e:
         excepterYaml(e)
 
@@ -127,8 +140,12 @@ def changetheme():
 
             with open(ALACRITTY_FILE_PATH, "w") as f:
                 yaml.dump(alacritty, f)
+            if argtheme.verbosity == True:
+                print("Theme succesful changed to -> {}".format(argtheme.theme))
             
+
             return True
+
         except yaml.YAMLError or FileNotFoundError as e:
             excepterYaml(e)
 
@@ -151,7 +168,7 @@ def cli():
     parser.add_argument("-s", "--size", help="changes your terminal size font") #, "SIZE")
     parser.add_argument("-p", "--padding", type=int, nargs="+", help="changes your terminal padding") #, "padding")
     parser.add_argument("-c", "--cursor", type=str ,nargs="+",help="changes your terminal cursor")
-
+    parser.add_argument("-v", "--verbosity", action='store_true',help="Says what script is doing")
     
     return parser.parse_args()
 
@@ -160,6 +177,7 @@ def cli():
 
 def main():
     args = cli()
+    
     #print(f"theme es igual a {args.theme}")
     if args.theme != None:
         changetheme()
