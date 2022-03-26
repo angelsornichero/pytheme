@@ -4,6 +4,7 @@ from pathlib import Path
 import os
 import yaml
 from Stiledprint import stlprint
+from pprint import pprint
 
 PATH = "/home/" + os.getlogin() + "/.config/alacritty/"
 ALACRITTY_FILE_PATH = PATH + "alacritty.yml"
@@ -106,25 +107,30 @@ def changefont():
         excepterYaml(e)
 
 def changetheme():
-    try:
-        argtheme = cli()
-
-        with open(THEME_FILE_PATH + argtheme.theme + ".yaml", "r") as theme_file:
-            theme = yaml.load(theme_file, Loader=yaml.FullLoader)
-        with open(ALACRITTY_FILE_PATH , "r") as alacritty_file:
-            alacritty = yaml.load(alacritty_file, Loader=yaml.FullLoader)
-
-        if "colors" not in theme:
-            print(f"Theme {theme_file} has not colors configuration")
-            return False
-        alacritty["colors"] = theme["colors"]
-
-        with open(ALACRITTY_FILE_PATH, "w") as f:
-            yaml.dump(alacritty, f)
+    argtheme = cli()
+    if argtheme.theme == "ls":
         
-        return True
-    except yaml.YAMLError or FileNotFoundError as e:
-        excepterYaml(e)
+        pprint(os.listdir(THEME_FILE_PATH))
+    else:
+        try:
+            argtheme = cli()
+
+            with open(THEME_FILE_PATH + argtheme.theme + ".yaml", "r") as theme_file:
+                theme = yaml.load(theme_file, Loader=yaml.FullLoader)
+            with open(ALACRITTY_FILE_PATH , "r") as alacritty_file:
+                alacritty = yaml.load(alacritty_file, Loader=yaml.FullLoader)
+
+            if "colors" not in theme:
+                print(f"Theme {theme_file} has not colors configuration")
+                return False
+            alacritty["colors"] = theme["colors"]
+
+            with open(ALACRITTY_FILE_PATH, "w") as f:
+                yaml.dump(alacritty, f)
+            
+            return True
+        except yaml.YAMLError or FileNotFoundError as e:
+            excepterYaml(e)
 
 def excepterYaml(e):
     if e == FileNotFoundError:
